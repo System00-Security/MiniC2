@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>MiniC2</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            background-color: #1a1a1a;
+            font-family: 'Courier New', Courier, monospace;
+            padding: 20px;
+        }
+        .terminal {
+            background-color: #000;
+            border: 1px solid #fff;
+            border-radius: 5px;
+            padding: 20px;
+            overflow-y: auto;
+            max-height: 400px;
+            margin-bottom: 20px;
+        }
+        .cmd-prompt::before {
+            content: 'PWNER$~';
+            color: #4CAF50;
+        }
+        .cmd-output::before {
+            content: 'INFECTED$~';
+            color: #FFA500;
+        }
+        .message-form {
+            margin-top: 20px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        .form-control {
+            background-color: #333;
+            color: #fff;
+            border: 1px solid #fff;
+            border-radius: 3px;
+            padding: 10px;
+            width: 100%;
+            outline: none;
+        }
+        .btn-primary {
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+            border-radius: 3px;
+        }
+        .btn-primary:hover {
+            background-color: #0056b3;
+        }
+        .terminal-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: calc(100vh - 100px); /* Adjust height as needed */
+        }
+        .terminal-wrapper {
+            width: 80%;
+            max-width: 800px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container mx-auto">
+        <h1 class="text-white text-center text-4xl font-bold mt-8">MiniC2</h1>
+        <p class="text-white text-center mb-8">by ARMx64</p>
+        <div class="terminal-container">
+            <div class="terminal-wrapper bg-black text-white rounded-lg shadow-lg p-4">
+                <div class="terminal h-96 overflow-y-auto"></div>
+
+                <form class="message-form mt-4" id="messageForm" action="/submit" method="post">
+                    <div class="form-group">
+                        <input type="text" class="form-control" name="message" id="messageInput" placeholder="Command">
+                    </div>
+                    <button type="submit" class="btn btn-primary">Submit</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        function refreshTerminal() {
+            $.ajax({
+                url: '/history',
+                type: 'GET',
+                dataType: 'json',
+                success: function(data) {
+                    var terminalContent = '';
+                    for (var i = 0; i < data.length; i++) {
+                        terminalContent += '<div class="cmd-output"> - ' + data[i]["name"] + ': <br/> <pre>' + data[i]["execute"] + '</pre></div>';
+                    }
+                    $('.terminal').html(terminalContent);
+                }
+            });
+        }
+
+        $(document).ready(function() {
+            refreshTerminal();
+            setInterval(refreshTerminal, 5000);
+
+            $('#messageForm').submit(function(event) {
+                event.preventDefault();
+                var message = $('#messageInput').val();
+                $.ajax({
+                    url: '/submit',
+                    type: 'POST',
+                    dataType: 'json',
+                    data: {message: message},
+                    success: function(response) {
+                        console.log(response);
+                    }
+                });
+                $('#messageInput').val('');
+            });
+        });
+    </script>
+</body>
+</html>
